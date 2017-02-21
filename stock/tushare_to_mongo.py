@@ -93,13 +93,14 @@ class TTM():
                 return
 
         if self._Type is not None:
+            print sdate
 # hfq
             stime = self.getBaseDate(sdate)
             if stime is None:
                 return
-            print stime
+            print self._code,"---",stime
             df = ts.get_h_data(self._code, autype=self._Type, start=stime)
-
+            #print df
             if df is None:
                 return
             if df.empty:

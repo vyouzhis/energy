@@ -18,14 +18,14 @@ from pyalgotrade.technical import ma
 import pandas as pd
 import sys
 
-class pyAlgoSMA(strategy.BacktestingStrategy):
+class MyStrategy(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.setDebugMode(False)
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
-        self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
+        self.__sma = ma.EMA(feed[instrument].getCloseDataSeries(), 15)
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
         self.__msdf = pd.DataFrame(columns=self.__col)
@@ -62,7 +62,6 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
         self.__position.exitMarket()
 
     def onBars(self, bars):
-
         if self.__sma[-1] is None:
             return
         bar = bars[self.__instrument]
@@ -83,7 +82,7 @@ def main(i, code):
     dbfeed = Feed(code, bar.Frequency.DAY, 1024)
     dbfeed.loadBars()
 
-    myStrategy = pyAlgoSMA(dbfeed, code, bBandsPeriod=i)
+    myStrategy = MyStrategy(dbfeed, code, bBandsPeriod=i)
     ms = eal()
     ms.protfolio(myStrategy)
 

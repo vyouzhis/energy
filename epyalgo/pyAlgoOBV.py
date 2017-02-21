@@ -13,19 +13,19 @@ from energy.libs.eAlgoLib import eAlgoLib as eal
 
 from pyalgotrade import strategy
 from pyalgotrade import bar
-from pyalgotrade.technical import ma
+from pyalgotrade.talibext import indicator
 
 import pandas as pd
 import sys
 
-class pyAlgoSMA(strategy.BacktestingStrategy):
+class pyAlgoOBV(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.setDebugMode(False)
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
-        self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
+
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
         self.__msdf = pd.DataFrame(columns=self.__col)
@@ -62,7 +62,9 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
         self.__position.exitMarket()
 
     def onBars(self, bars):
-
+        closeDs = self.getFeed().getDataSeries(self.__instrument).getCloseDataSeries()
+        volumeDs = self.getFeed().getDataSeries(self.__instrument).getVolumeDataSeries()
+        self.__sma = indicator.OBV(closeDs, volumeDs, 100)
         if self.__sma[-1] is None:
             return
         bar = bars[self.__instrument]
@@ -83,7 +85,7 @@ def main(i, code):
     dbfeed = Feed(code, bar.Frequency.DAY, 1024)
     dbfeed.loadBars()
 
-    myStrategy = pyAlgoSMA(dbfeed, code, bBandsPeriod=i)
+    myStrategy = pyAlgoOBV(dbfeed, code, bBandsPeriod=i)
     ms = eal()
     ms.protfolio(myStrategy)
 

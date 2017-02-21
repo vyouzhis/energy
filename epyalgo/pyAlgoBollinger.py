@@ -13,19 +13,21 @@ from energy.libs.eAlgoLib import eAlgoLib as eal
 
 from pyalgotrade import strategy
 from pyalgotrade import bar
-from pyalgotrade.technical import ma
+from pyalgotrade.technical import bollinger
 
 import pandas as pd
 import sys
 
-class pyAlgoSMA(strategy.BacktestingStrategy):
+class pyAlgoBollinger(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, bBandsPeriod):
         strategy.BacktestingStrategy.__init__(self, feed)
         self.setDebugMode(False)
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
-        self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
+
+        self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(),
+                                                 bBandsPeriod, 2)
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
         self.__msdf = pd.DataFrame(columns=self.__col)
@@ -63,27 +65,28 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
 
     def onBars(self, bars):
 
-        if self.__sma[-1] is None:
+        lower = self.__bbands.getLowerBand()[-1]
+        upper = self.__bbands.getUpperBand()[-1]
+        if lower is None:
             return
+
+        shares = self.getBroker().getShares(self.__instrument)
+
         bar = bars[self.__instrument]
-        #self.info("close:%s sma:%s rsi:%s" % (bar.getClose(), self.__sma[-1], self.__rsi[-1]))
 
-        if self.__position is None:
-            if bar.getPrice() > self.__sma[-1]:
-                # Enter a buy market order for 10 shares. The order is good till canceled.
-                self.__position = self.enterLong(self.__instrument, 10, True)
-                #print dir(self.__position)
-
-        # Check if we have to exit the position.
-        elif bar.getPrice() < self.__sma[-1] and not self.__position.exitActive():
+        if shares == 0 and bar.getClose() < lower:
+            sharesToBuy = int(self.getBroker().getCash(False) / bar.getClose())
+            self.__position = self.enterLong(self.__instrument, sharesToBuy, False)
+        elif shares > 0 and bar.getClose() > upper:
             self.__position.exitMarket()
+
 
 def main(i, code):
     #code = "000592"
     dbfeed = Feed(code, bar.Frequency.DAY, 1024)
     dbfeed.loadBars()
 
-    myStrategy = pyAlgoSMA(dbfeed, code, bBandsPeriod=i)
+    myStrategy = pyAlgoBollinger(dbfeed, code, bBandsPeriod=i)
     ms = eal()
     ms.protfolio(myStrategy)
 
