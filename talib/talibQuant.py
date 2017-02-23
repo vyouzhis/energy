@@ -53,23 +53,46 @@ class talibQuant():
 
         if self._o == "BBANDS":
             upperband, middleband, lowerband = qRes
+            brjObject.RawMa(0)
 
-            nlist["upperband"] = upperband
-            nlist["middleband"] = middleband
-            nlist["lowerband"] = lowerband
+            brjObject.db(json.dumps(upperband.tolist()))
+            brjObject.formats("line")
+            brjObject.isExt(1)
+            brjObject.yIndex(1)
+            brjObject.name("Upper Band")
+            brjObject.buildData()
+
+            brjObject.db(json.dumps(middleband.tolist()))
+            brjObject.formats("line")
+            brjObject.isExt(1)
+            brjObject.yIndex(1)
+            brjObject.name("5-day SMA")
+            brjObject.buildData()
+
+            brjObject.db(json.dumps(lowerband.tolist()))
+            brjObject.formats("line")
+            brjObject.isExt(1)
+            brjObject.yIndex(1)
+            brjObject.name("Lower Band")
+            brjObject.buildData()
 
         if self._o == "MACD":
 
             macd, macdsignal, macdhist = qRes
             nlist["macd"] = macd
             nlist["macdsignal"] = macdsignal
-            nlist["macdhist"] = macdhist
 
-        for k in nlist:
-            brjObject.db(json.dumps(nlist[k].tolist()))
-            brjObject.formats("line")
-            brjObject.name(k)
+            brjObject.db(json.dumps(macdhist.tolist()))
+            brjObject.formats("bar")
+            brjObject.yIndex(1)
+            brjObject.name("macdhist")
             brjObject.buildData()
+
+            for k in nlist:
+                brjObject.db(json.dumps(nlist[k].tolist()))
+                brjObject.formats("line")
+                brjObject.name(k)
+                brjObject.buildData()
 
         if self._o == "STOCH":
             slowk, slowd = qRes
