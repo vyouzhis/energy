@@ -81,18 +81,17 @@ class talibQuant():
             macd, macdsignal, macdhist = qRes
             nlist["macd"] = macd
             nlist["macdsignal"] = macdsignal
+            for k in nlist:
+                brjObject.db(json.dumps(nlist[k].tolist()))
+                brjObject.formats("line")
+                brjObject.name(k)
+                brjObject.buildData()
 
             brjObject.db(json.dumps(macdhist.tolist()))
             brjObject.formats("bar")
             brjObject.yIndex(1)
             brjObject.name("macdhist")
             brjObject.buildData()
-
-            for k in nlist:
-                brjObject.db(json.dumps(nlist[k].tolist()))
-                brjObject.formats("line")
-                brjObject.name(k)
-                brjObject.buildData()
 
         if self._o == "STOCH":
             slowk, slowd = qRes
