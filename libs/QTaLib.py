@@ -15,6 +15,7 @@ class QTaLib():
     def __init__(self):
         self._FunName = ""
         self._KLine = None
+        self._H = None
 
     def SetFunName(self, n):
         """
@@ -34,6 +35,15 @@ class QTaLib():
         """
         self._KLine = k
 
+    def SetHFQ(self, h):
+        """
+            SetHFQ 设置k线 复权数据
+        Parameters
+        ----------
+            h:DataFrame
+        """
+        self._H = h
+
     def Run(self):
         """
             Run 执行
@@ -45,9 +55,14 @@ class QTaLib():
             'open': self._KLine.open.values,
             'high': self._KLine.high.values,
             'low': self._KLine.low.values,
-            'close': self._KLine.close.values,
-            'volume': self._KLine.volume.values
+            'close': self._KLine.close.values
         }
+        length = len(self._KLine.close.values)
+
+        if self._H is not None:
+            hlen = len(self._H.volume.values)
+            inputs['volume'] = self._H.volume.values[hlen-length:]
+
         try:
             fun = abstract.Function(self._FunName)
         except:

@@ -30,10 +30,12 @@ class talibQuant():
     def run(self):
         kp = kPrice()
         kline = kp.getAllKLine(self._Code)
-
+        hline = kp.getAllKLine(self._Code+"_hfq")
         qtl = QTaLib()
         qtl.SetFunName(self._o)
         qtl.SetKline(kline)
+        if hline is not None:
+            qtl.SetHFQ(hline)
 
         qRes = qtl.Run()
 
