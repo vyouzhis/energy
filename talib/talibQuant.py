@@ -53,26 +53,26 @@ class talibQuant():
 
         if self._o == "BBANDS":
             upperband, middleband, lowerband = qRes
-#            brjObject.RawMa(0)
+            brjObject.RawMa(0)
 
             brjObject.db(json.dumps(upperband.tolist()))
             brjObject.formats("line")
             brjObject.isExt(1)
-#            brjObject.yIndex(1)
+            brjObject.yIndex(1)
             brjObject.name("Upper Band")
             brjObject.buildData()
 
             brjObject.db(json.dumps(middleband.tolist()))
             brjObject.formats("line")
             brjObject.isExt(1)
- #           brjObject.yIndex(1)
+            brjObject.yIndex(1)
             brjObject.name("5-day SMA")
             brjObject.buildData()
 
             brjObject.db(json.dumps(lowerband.tolist()))
             brjObject.formats("line")
             brjObject.isExt(1)
-  #          brjObject.yIndex(1)
+            brjObject.yIndex(1)
             brjObject.name("Lower Band")
             brjObject.buildData()
 
