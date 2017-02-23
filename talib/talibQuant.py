@@ -33,6 +33,7 @@ class talibQuant():
         hline = kp.getAllKLine(self._Code+"_hfq")
         qtl = QTaLib()
         qtl.SetFunName(self._o)
+
         qtl.SetKline(kline)
         if hline is not None:
             qtl.SetHFQ(hline)
