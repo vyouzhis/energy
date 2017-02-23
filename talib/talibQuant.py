@@ -29,7 +29,7 @@ class talibQuant():
 
     def run(self):
         kp = kPrice()
-        kline = kp.getAllKLine(self._Code+"_hfq")
+        kline = kp.getAllKLine(self._Code)
 
         qtl = QTaLib()
         qtl.SetFunName(self._o)
