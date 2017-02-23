@@ -16,7 +16,6 @@ from energy.db.kPrice import kPrice
 from energy.libs.buildReturnJson import buildReturnJson as brj
 from energy.libs.QTaLib import QTaLib
 
-
 class talibQuant():
     def __init__(self):
         self._Code = ""
@@ -30,35 +29,65 @@ class talibQuant():
 
     def run(self):
         kp = kPrice()
-        kline = kp.getAllKLine(self._Code)
-        length = len(kline.close.values)
         kline = kp.getAllKLine(self._Code+"_hfq")
-        lenhfq = len(kline.close.values)
-        volume = kline.volume.values
 
         qtl = QTaLib()
         qtl.SetFunName(self._o)
         qtl.SetKline(kline)
 
         qRes = qtl.Run()
-        print len(qRes)
-        """
+
         brjObject = brj()
 
-        brjObject.db(json.dumps(obvReal[lenhfq-length:].tolist()))
-        brjObject.formats("line")
-        brjObject.name(self._o)
-        brjObject.buildData()
+        OneList = ["ATR", "EMA", "OBV","ROC","RSI","SMA","WMA"]
 
-        brjObject.db(json.dumps(volume[lenhfq-length:].tolist()))
-        brjObject.formats("bar")
-        brjObject.yIndex(1)
-        brjObject.name("Volume")
-        brjObject.buildData()
+        nlist = {}
+
+        if o in OneList:
+            real = qRes
+
+            brjObject.db(json.dumps(real.tolist()))
+            brjObject.formats("line")
+            brjObject.name(o)
+            brjObject.buildData()
+
+        if self._o == "BBANDS":
+            upperband, middleband, lowerband = qRes
+
+            nlist["upperband"] = upperband
+            nlist["middleband"] = middleband
+            nlist["lowerband"] = lowerband
+
+        if self._o == "MACD":
+
+            macd, macdsignal, macdhist = qRes
+            nlist["macd"] = macd
+            nlist["macdsignal"] = macdsignal
+            nlist["macdhist"] = macdhist
+
+        for k in nlist:
+            brjObject.db(json.dumps(nlist[k].tolist()))
+            brjObject.formats("line")
+            brjObject.name(k)
+            brjObject.buildData()
+
+        if self._o == "STOCH":
+            slowk, slowd = qRes
+
+            brjObject.db(json.dumps(slowk.tolist()))
+            brjObject.formats("line")
+            brjObject.name("slowk")
+            brjObject.buildData()
+
+            brjObject.db(json.dumps(slowd.tolist()))
+            brjObject.formats("bar")
+            brjObject.yIndex(1)
+            brjObject.name("slowd")
+            brjObject.buildData()
         brjJson = brjObject.getResult()
 
         print brjJson
-        """
+
 
 def main(c, o):
     obv = talibQuant()
