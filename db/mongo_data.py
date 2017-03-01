@@ -37,6 +37,7 @@ class MonSQLDatabase(dbfeed.Database):
         stockdb = emg.getCollectionNames("stockDB")
         ret = []
         KL = []
+        print instrument
         for post in stockdb.find({instrument: {'$exists':1}},{instrument:1,'_id':0}):
             KL = KL+post[instrument]
 

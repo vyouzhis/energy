@@ -36,7 +36,7 @@ class pyAlgoBollinger(strategy.BacktestingStrategy):
         self.setUseAdjustedValues(True)
 
     def EchoDF(self):
-        return self.__msdf.to_json(orient="split")
+        return self.__msdf
 
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()
@@ -88,6 +88,7 @@ def main(i, code):
 
     myStrategy = pyAlgoBollinger(dbfeed, code, bBandsPeriod=i)
     ms = eal()
+    ms.setDebug(True)
     ms.protfolio(myStrategy)
 
 if __name__ == "__main__":

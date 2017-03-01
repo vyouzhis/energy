@@ -25,6 +25,7 @@ class pyAlgoATR(strategy.BacktestingStrategy):
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
+        print feed[instrument].getCloseDataSeries()
         self.__sma = atr.ATR(feed[instrument].getCloseDataSeries(), 15)
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
@@ -34,7 +35,7 @@ class pyAlgoATR(strategy.BacktestingStrategy):
         self.setUseAdjustedValues(True)
 
     def EchoDF(self):
-        return self.__msdf.to_json(orient="split")
+        return self.__msdf
 
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()

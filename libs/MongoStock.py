@@ -20,7 +20,7 @@ class MonSQLDatabase(dbfeed.Database):
 
     def getBars(self, instrument, timezone=None, fromDateTime=None, toDateTime=None):
         kp = kPrice()
-        kline = kp.getAllKLine(instrument)
+        kline = kp.getAllKLine(instrument+"_hfq")
         kline =  kline.tail(300)
         ret = []
 

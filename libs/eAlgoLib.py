@@ -20,6 +20,11 @@ import pandas as pd
 
 
 class eAlgoLib():
+    def __init__(self):
+        self._Debug = False
+
+    def setDebug(self, d):
+        self._Debug = d
 
     def protfolio(self, myStrategy):
         retAnalyzer = returns.Returns()
@@ -35,19 +40,23 @@ class eAlgoLib():
 
         myStrategy.run()
         dfjson = myStrategy.EchoDF()
+        if self._Debug:
+            print dfjson
+            print "--------------"
+
         finalProt = myStrategy.getResult()
 
         brjObject = brj()
 
 #交易过程
 
-        brjObject.db(dfjson)
+        brjObject.db(dfjson.to_json(orient="split"))
 ## ...
         brjObject.formats("markPoint")
         brjObject.name("df")
         brjObject.buildData()
 
-        brjObject.db(dfjson)
+        brjObject.db(dfjson.to_json(orient="split"))
 ## ...
         brjObject.formats("table")
         brjObject.name("交易细则")
@@ -67,6 +76,9 @@ class eAlgoLib():
 #最大回撤
         base["DrawDown :"]=" %.2f" % (drawDownAnalyzer.getMaxDrawDown())
         dfbase = pd.DataFrame(base,index=["val"])
+        if self._Debug:
+            print dfbase.T
+            print "--------------"
 
         baseJson = dfbase.T.reset_index().to_json(orient="split")
 
@@ -91,6 +103,10 @@ class eAlgoLib():
             AllTrades["Min. return: "]="%2.f %%" % (returns_trade.min() * 100)
 
         df = pd.DataFrame(AllTrades,index=["val"])
+        if self._Debug:
+            print df.T
+            print "--------------"
+
         baseJson = df.T.reset_index().to_json(orient="split")
 
         brjObject.db(baseJson)
@@ -114,6 +130,10 @@ class eAlgoLib():
             proTrades["Min. return: "]="%2.f %%" % (returns_trade.min() * 100)
 
         df = pd.DataFrame(proTrades, index=["val"])
+        if self._Debug:
+            print df.T
+            print "--------------"
+
         baseJson = df.T.reset_index().to_json(orient="split")
 
         brjObject.db(baseJson)
@@ -136,6 +156,10 @@ class eAlgoLib():
             unproTrades["Min. return: "]="%2.f %%" % (returns_trade.min() * 100)
 
         df = pd.DataFrame(unproTrades, index=["val"])
+        if self._Debug:
+            print df.T
+            print "--------------"
+
         baseJson = df.T.reset_index().to_json(orient="split")
 
         brjObject.db(baseJson)
@@ -144,5 +168,5 @@ class eAlgoLib():
         brjObject.buildData()
 
         brjJson = brjObject.getResult()
-
-        print brjJson
+        if self._Debug == False:
+            print brjJson

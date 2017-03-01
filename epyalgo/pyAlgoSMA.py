@@ -14,6 +14,7 @@ from energy.libs.eAlgoLib import eAlgoLib as eal
 from pyalgotrade import strategy
 from pyalgotrade import bar
 from pyalgotrade.technical import ma
+from pyalgotrade.technical import cross
 
 import pandas as pd
 import sys
@@ -25,6 +26,7 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
+        self.__prices = feed[instrument].getPriceDataSeries()
         self.__sma = ma.SMA(feed[instrument].getCloseDataSeries(), 15)
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
@@ -34,7 +36,7 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
         self.setUseAdjustedValues(True)
 
     def EchoDF(self):
-        return self.__msdf.to_json(orient="split")
+        return self.__msdf
 
     def onEnterOk(self, position):
         execInfo = position.getEntryOrder().getExecutionInfo()
@@ -65,17 +67,14 @@ class pyAlgoSMA(strategy.BacktestingStrategy):
 
         if self.__sma[-1] is None:
             return
-        bar = bars[self.__instrument]
-        #self.info("close:%s sma:%s rsi:%s" % (bar.getClose(), self.__sma[-1], self.__rsi[-1]))
 
         if self.__position is None:
-            if bar.getPrice() > self.__sma[-1]:
-                # Enter a buy market order for 10 shares. The order is good till canceled.
-                self.__position = self.enterLong(self.__instrument, 10, True)
-                #print dir(self.__position)
-
+            if cross.cross_above(self.__prices, self.__sma) > 0:
+                shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
+                # Enter a buy market order. The order is good till canceled.
+                self.__position = self.enterLong(self.__instrument, shares, True)
         # Check if we have to exit the position.
-        elif bar.getPrice() < self.__sma[-1] and not self.__position.exitActive():
+        elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.__position.exitMarket()
 
 def main(i, code):
@@ -85,6 +84,7 @@ def main(i, code):
 
     myStrategy = pyAlgoSMA(dbfeed, code, bBandsPeriod=i)
     ms = eal()
+    ms.setDebug(True)
     ms.protfolio(myStrategy)
 
 if __name__ == "__main__":

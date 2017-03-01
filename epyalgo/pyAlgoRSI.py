@@ -41,7 +41,8 @@ class pyAlgoRSI(strategy.BacktestingStrategy):
 
 
     def EchoDF(self):
-        return self.__msdf.to_json(orient="split")
+#        return self.__msdf.to_json(orient="split")
+        return self.__msdf
 
     def getEntrySMA(self):
         return self.__entrySMA
@@ -135,6 +136,7 @@ def main(i, code):
 
     myStrategy = pyAlgoRSI(dbfeed, code, entrySMA, exitSMA, rsiPeriod, overBoughtThreshold, overSoldThreshold)
     ms = eal()
+    ms.setDebug(True)
     ms.protfolio(myStrategy)
 
 if __name__ == "__main__":
