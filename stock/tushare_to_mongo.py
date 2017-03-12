@@ -159,7 +159,8 @@ class TTM():
         baseTime = str(il[0]["Info"]["basics"][self._code]["timeToMarket"])
 
         if baseTime is None:
-            return None
+            StartTime = strftime("%Y-%m-%d", localtime(time()-86400*20))
+            return StartTime
 
         emg.Close()
         baseTime = baseTime[0:4]+"-"+baseTime[4:6]+"-"+baseTime[6:]
