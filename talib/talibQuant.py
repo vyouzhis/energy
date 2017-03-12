@@ -106,7 +106,6 @@ class talibQuant():
 
             brjObject.db(json.dumps(slowd.tolist()))
             brjObject.formats("line")
-            brjObject.yIndex(1)
             brjObject.name("STOCH slowd")
             brjObject.buildData()
         brjJson = brjObject.getResult()
