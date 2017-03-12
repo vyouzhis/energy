@@ -152,13 +152,14 @@ class TTM():
         il = list(df)
         if len(il)==0:
             emg.Close()
-            return None
+            StartTime = strftime("%Y-%m-%d", localtime(time()-86400*20))
+            return StartTime
 
         baseTime = None
 
         baseTime = str(il[0]["Info"]["basics"][self._code]["timeToMarket"])
 
-        if baseTime is None:
+        if baseTime is None or len(baseTime) < 6:
             StartTime = strftime("%Y-%m-%d", localtime(time()-86400*20))
             return StartTime
 
