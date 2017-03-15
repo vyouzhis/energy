@@ -25,8 +25,7 @@ class pyAlgoATR(strategy.BacktestingStrategy):
         self.__instrument = instrument
         self.__feed = feed
         self.__position = None
-        print feed[instrument].getCloseDataSeries()
-        self.__sma = atr.ATR(feed[instrument].getCloseDataSeries(), 15)
+        self.__atr = atr.ATR(feed[instrument], 15)
 
         self.__col = ["buyPrice","buyTime","sellPrice","sellTime", "returns"]
         self.__msdf = pd.DataFrame(columns=self.__col)
@@ -63,19 +62,22 @@ class pyAlgoATR(strategy.BacktestingStrategy):
         self.__position.exitMarket()
 
     def onBars(self, bars):
-        if self.__sma[-1] is None:
+        if self.__atr[-1] is None or self.__atr[-15] is None:
             return
-        bar = bars[self.__instrument]
-        #self.info("close:%s sma:%s rsi:%s" % (bar.getClose(), self.__sma[-1], self.__rsi[-1]))
+        preAtr = self.__atr[-15]
+        nowAtr = self.__atr[-1]
+        per = nowAtr * 0.75
 
         if self.__position is None:
-            if bar.getPrice() > self.__sma[-1]:
+            if per > preAtr:
+                sharesToBuy = int(self.getBroker().getCash(False) / bar.getClose())
+                self.__position = self.enterLong(self.__instrument, sharesToBuy, True)
                 # Enter a buy market order for 10 shares. The order is good till canceled.
-                self.__position = self.enterLong(self.__instrument, 10, True)
+    #            self.__position = self.enterLong(self.__instrument, 10, True)
                 #print dir(self.__position)
 
         # Check if we have to exit the position.
-        elif bar.getPrice() < self.__sma[-1] and not self.__position.exitActive():
+        elif per < preAtr and not self.__position.exitActive():
             self.__position.exitMarket()
 
 def main(i, code):
